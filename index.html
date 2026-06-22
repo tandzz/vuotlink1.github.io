@@ -3,40 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="no-referrer">
-    <title>Đang chuyển hướng an toàn...</title>
+    <title>Hệ Thống Xác Thực Tài Khoản</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding-top: 50px; background: #f4f4f4; }
-        .box { background: white; padding: 30px; display: inline-block; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .btn { display: none; background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 480px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            font-size: 22px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+        }
+        .field-box {
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: #f8fafc;
+            color: #334155;
+            outline: none;
+            transition: border 0.2s;
+        }
+        input:focus {
+            border-color: #3b82f6;
+        }
+        button {
+            padding: 12px 16px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-success {
+            background-color: #10b981;
+        }
+        .btn-success:hover {
+            background-color: #059669;
+        }
+        #error-msg {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+        /* Khu vực hiển thị kết quả sau khi mở khóa thành công */
+        #result-section {
+            display: none;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px dashed #e2e8f0;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: none;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>Hệ thống đang kiểm tra tệp tin...</h2>
-    <p id="status">Vui lòng chờ <span id="countdown">15</span> giây...</p>
-    <a href="https://funlink-cua-ban.com/abcde" id="download-btn" class="btn" rel="noreferrer">BẤM VÀO ĐÂY ĐỂ TIẾP TỤC</a>
-</div>
+    <div class="container">
+        <h2>Xác Thực Nhận Tài Khoản</h2>
+        
+        <div id="unlock-section">
+            <div class="input-group">
+                <label>Apple ID được chỉ định ngẫu nhiên:</label>
+                <input type="text" id="display-apple-id" readonly style="font-weight: bold; background-color: #e2e8f0;">
+            </div>
 
-<script>
-    let seconds = 15; // Số giây bắt đợi để hợp thức hóa traffic thật
-    let countdown = document.getElementById('countdown');
-    let statusText = document.getElementById('status');
-    let btn = document.getElementById('download-btn');
+            <div class="input-group">
+                <label for="unlock-password">Nhập mật khẩu của Apple ID này để lấy thông tin:</label>
+                <div class="field-box">
+                    <input type="password" id="unlock-password" placeholder="Nhập mật khẩu mở khóa...">
+                    <button onclick="checkUnlockPassword()">Xác nhận</button>
+                </div>
+                <p id="error-msg">Mật khẩu xác thực không chính xác. Vui lòng thử lại!</p>
+            </div>
+        </div>
 
-    let timer = setInterval(function() {
-        seconds--;
-        countdown.textContent = seconds;
-        if (seconds <= 0) {
-            clearInterval(timer);
-            statusText.style.display = 'none';
-            btn.style.display = 'inline-block'; // Hiện nút cho khách tự bấm
+        <div id="result-section">
+            <div class="input-group">
+                <label>Email nhận được (Hiển thị ẩn):</label>
+                <div class="field-box">
+                    <input type="password" id="result-email" readonly>
+                    <button class="btn-success" onclick="copyText('result-email')">Sao chép</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Mật khẩu nhận được (Hiển thị ẩn):</label>
+                <div class="field-box">
+                    <input type="password" id="result-password" readonly>
+                    <button class="btn-success" onclick="copyText('result-password')">Sao chép</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Đã sao chép vào bộ nhớ tạm!</div>
+
+    <script>
+        // =========================================================================
+        // NƠI THÊM / SỬA / XÓA DANH SÁCH TÀI KHOẢN CỦA BẠN
+        // Bạn có thể thêm bao nhiêu tài khoản tùy ý theo cấu trúc bên dưới.
+        // =========================================================================
+        const DATA_ACCOUNTS = [
+            {
+                appleId: "apple_id_ngau_nhien_1@gmail.com", 
+                unlockPassword: "matkhau1",              // Mật khẩu người dùng cần nhập vào để mở
+                resultEmail: "email_an_so_1@gmail.com",   // Email ẩn (hiện dấu chấm) trả về khi nhập đúng
+                resultPassword: "mat_khau_an_so_1"       // Mật khẩu ẩn (hiện dấu chấm) trả về khi nhập đúng
+            },
+            {
+                appleId: "apple_id_ngau_nhien_2@gmail.com",
+                unlockPassword: "matkhau2",
+                resultEmail: "email_an_so_2@gmail.com",
+                resultPassword: "mat_khau_an_so_2"
+            },
+            {
+                appleId: "apple_id_ngau_nhien_3@gmail.com",
+                unlockPassword: "matkhau3",
+                resultEmail: "email_an_so_3@gmail.com",
+                resultPassword: "mat_khau_an_so_3"
+            }
+        ];
+        // =========================================================================
+
+        let currentAccount = null;
+
+        // 1. Tự động chọn ngẫu nhiên 1 tài khoản trong danh sách khi vừa truy cập web
+        window.onload = function() {
+            if (DATA_ACCOUNTS.length > 0) {
+                const randomIndex = Math.floor(Math.random() * DATA_ACCOUNTS.length);
+                currentAccount = DATA_ACCOUNTS[randomIndex];
+                
+                // Hiển thị Apple ID được chọn lên ô nhập thứ nhất
+                document.getElementById('display-apple-id').value = currentAccount.appleId;
+            }
+        };
+
+        // 2. Hàm kiểm tra xem mật khẩu người dùng nhập vào có khớp với Apple ID đó không
+        function checkUnlockPassword() {
+            const userInput = document.getElementById('unlock-password').value;
+            const errorElement = document.getElementById('error-msg');
+            const resultSection = document.getElementById('result-section');
+
+            if (userInput === currentAccount.unlockPassword) {
+                errorElement.style.display = 'none';
+                
+                // Đổ dữ liệu ẩn vào 2 ô kết quả
+                document.getElementById('result-email').value = currentAccount.resultEmail;
+                document.getElementById('result-password').value = currentAccount.resultPassword;
+                
+                // Hiển thị phần kết quả ra màn hình
+                resultSection.style.display = 'block';
+            } else {
+                errorElement.style.display = 'block';
+                resultSection.style.display = 'none';
+            }
         }
-    }, 1000);
-</script>
 
+        // 3. Hàm xử lý sao chép văn bản ẩn sang bộ nhớ tạm
+        function copyText(elementId) {
+            const inputElement = document.getElementById(elementId);
+            
+            navigator.clipboard.writeText(inputElement.value).then(() => {
+                showToast();
+            }).catch(err => {
+                // Dự phòng cho trình duyệt cũ
+                inputElement.select();
+                document.execCommand('copy');
+                showToast();
+            });
+        }
+
+        // Hiện thông báo "Đã sao chép"
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 1500);
+        }
+    </script>
 </body>
 </html>
-
-
