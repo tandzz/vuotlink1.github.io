@@ -10,7 +10,7 @@
         // TÍNH NĂNG CHẶN TRUY CẬP (CÁCH 1)
         // ========================================================
         // Thay thế hoặc thêm các tên miền của Funlink vào danh sách này nếu họ đổi domain
-        const validSources = ["funlink.net", "funlink.pro", "funlinks.co"]; 
+        const validSources = ["funlink.net", "link4m.net", "funlinks.co"]; 
         
         const referrer = document.referrer.toLowerCase();
         const isFromFunlink = validSources.some(source => referrer.includes(source));
