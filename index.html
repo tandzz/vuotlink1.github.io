@@ -4,28 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thông Tin Tài Khoản</title>
-    
-    <script>
-        // ========================================================
-        // TÍNH NĂNG CHẶN TRUY CẬP (CÁCH 1)
-        // ========================================================
-        // Thay thế hoặc thêm các tên miền của Funlink vào danh sách này nếu họ đổi domain
-        const validSources = ["funlink.net", "link4m.net", "funlinks.co"]; 
-        
-        const referrer = document.referrer.toLowerCase();
-        const isFromFunlink = validSources.some(source => referrer.includes(source));
-
-        // Tự động bỏ qua chặn nếu bạn chạy thử file ở máy cá nhân (localhost) để tiện kiểm tra
-        const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:";
-
-        if (!isFromFunlink && !isLocal) {
-            // Nếu truy cập lậu (không qua Funlink), chuyển hướng ngay lập tức về Google
-            window.location.href = "https://google.com"; 
-        }
-    </script>
-
     <style>
-        /* Giao diện tối giản, căn giữa màn hình */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
@@ -33,109 +17,160 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
         }
-        .card {
+        .container {
             background: #ffffff;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
         }
         h2 {
             text-align: center;
-            margin-top: 0;
             margin-bottom: 25px;
-            color: #1a1a1a;
-            font-size: 22px;
+            color: #333;
         }
         .input-group {
             margin-bottom: 20px;
         }
         label {
             display: block;
-            font-size: 14px;
-            font-weight: 600;
             margin-bottom: 8px;
-            color: #4a4a4a;
+            font-weight: 600;
+            color: #555;
         }
-        .flex-container {
+        .field-box {
             display: flex;
             gap: 10px;
         }
         input {
             flex: 1;
             padding: 12px;
-            border: 1px solid #ced4da;
+            border: 1px solid #ccc;
             border-radius: 6px;
-            font-size: 15px;
-            background-color: #f8f9fa;
-            color: #212529;
+            font-size: 16px;
+            background-color: #fafafa;
+            color: #333;
             outline: none;
         }
-        input:focus {
-            border-color: #007bff;
-            background-color: #fff;
-        }
         button {
-            padding: 0 20px;
+            padding: 12px 18px;
             background-color: #007bff;
             color: white;
             border: none;
             border-radius: 6px;
-            cursor: pointer;
             font-size: 14px;
-            font-weight: 500;
-            white-space: nowrap;
+            font-weight: bold;
+            cursor: pointer;
             transition: background 0.2s;
         }
         button:hover {
             background-color: #0056b3;
         }
-        button:active {
-            background-color: #004085;
+        /* Thông báo nhỏ khi copy thành công */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: none;
+            z-index: 10;
+        }
+        /* Giao diện màn hình khi bị chặn */
+        #block-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: #dc3545;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Thông Tin Đăng Nhập</h2>
-    
-    <div class="input-group">
-        <label for="apple-id">ID Apple</label>
-        <div class="flex-container">
-            <input type="text" id="apple-id" value="tai_khoan_apple_cua_ban@gmail.com" readonly>
-            <button onclick="copyText('apple-id')">Sao chép</button>
-        </div>
+    <div id="block-screen" style="display: none;">
+        <p>CẢNH BÁO: Bạn không thể truy cập trực tiếp vào trang web này!</p>
+        <p style="font-size: 14px; color: #777; margin-top: 10px;">Vui lòng chuyển hướng từ một trang web khác.</p>
     </div>
 
-    <div class="input-group">
-        <label for="password">Mật khẩu</label>
-        <div class="flex-container">
-            <input type="password" id="password" value="MatKhauBiMat123@" readonly>
-            <button onclick="copyText('password')">Sao chép</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Hàm thực hiện sao chép text vào bộ nhớ tạm
-    function copyText(elementId) {
-        const input = document.getElementById(elementId);
+    <div class="container" id="main-content">
+        <h2>Thông Tin Đăng Nhập</h2>
         
-        // Sử dụng API sao chép hiện đại
-        navigator.clipboard.writeText(input.value).then(() => {
-            alert("Đã sao chép vào bộ nhớ tạm!");
-        }).catch(err => {
-            // Phương án dự phòng cho trình duyệt cũ
-            input.select();
-            document.execCommand('copy');
-            alert("Đã sao chép vào bộ nhớ tạm!");
-        });
-    }
-</script>
+        <div class="input-group">
+            <label for="apple-id">Apple ID</label>
+            <div class="field-box">
+                <input type="text" id="apple-id" readonly>
+                <button onclick="copyText('apple-id')">Sao chép</button>
+            </div>
+        </div>
 
+        <div class="input-group">
+            <label for="password">Mật khẩu</label>
+            <div class="field-box">
+                <input type="password" id="password" readonly>
+                <button onclick="copyText('password')">Sao chép</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Đã sao chép vào bộ nhớ tạm!</div>
+
+    <script>
+        // ===================================================
+        // NƠI THAY ĐỔI ID VÀ MẬT KHẨU CỦA BẠN
+        // ===================================================
+        const CONFIG_APPLE_ID = "tai-khoan-apple-cua-ban@gmail.com";
+        const CONFIG_PASSWORD = "MatKhauBiMatDoiODay123";
+        // ===================================================
+
+        // 1. Kiểm tra chặn truy cập trực tiếp
+        // `document.referrer` sẽ trống ("") nếu gõ URL trực tiếp, mở từ bookmark hoặc tab trống mới.
+        if (document.referrer === "") {
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('block-screen').style.display = 'flex';
+        } else {
+            // Nếu hợp lệ (chuyển qua từ một trang bất kỳ), tiến hành đổ dữ liệu vào ô nhập
+            document.getElementById('apple-id').value = CONFIG_APPLE_ID;
+            document.getElementById('password').value = CONFIG_PASSWORD;
+        }
+
+        // 2. Hàm xử lý sao chép dữ liệu
+        function copyText(elementId) {
+            const inputElement = document.getElementById(elementId);
+            
+            // Sử dụng Clipboard API để sao chép giá trị gốc (kể cả khi mật khẩu đang hiện dấu chấm)
+            navigator.clipboard.writeText(inputElement.value).then(() => {
+                showToast();
+            }).catch(err => {
+                // Phương án dự phòng nếu trình duyệt không hỗ trợ Clipboard API
+                inputElement.select();
+                document.execCommand('copy');
+                showToast();
+            });
+        }
+
+        // Hàm hiển thị thông báo "Đã sao chép" ẩn đi sau 1.5 giây
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 1500);
+        }
+    </script>
 </body>
 </html>
