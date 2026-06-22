@@ -94,7 +94,6 @@
             padding-top: 25px;
             border-top: 2px dashed #e2e8f0;
         }
-        /* Style cho đồng hồ đếm ngược */
         .timer-banner {
             background-color: #fffbeb;
             border: 1px solid #fef3c7;
@@ -105,7 +104,6 @@
             font-weight: bold;
             margin-bottom: 20px;
         }
-        /* Màn hình khóa 3 tiếng */
         #block-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -196,7 +194,7 @@
                 <label>Mật khẩu nhận được (Hiển thị ẩn):</label>
                 <div class="field-box">
                     <input type="password" id="result-password" readonly>
-                    <button class="btn-success" onclick="copyText('password-email')">Sao chép</button>
+                    <button class="btn-success" onclick="copyText('result-password')">Sao chép</button>
                 </div>
             </div>
         </div>
@@ -224,9 +222,8 @@
         ];
         // =========================================================================
 
-        // Quy đổi thời gian (miligiây)
-        const VIEW_TIME_LIMIT = 90 * 1000;          // 90 giây xem thông tin
-        const BLOCK_TIME_LIMIT = 3 * 60 * 60 * 1000; // 3 tiếng khóa
+        const VIEW_TIME_LIMIT = 90 * 1000;          
+        const BLOCK_TIME_LIMIT = 3 * 60 * 60 * 1000; 
 
         let currentAccount = null;
         let countdownInterval = null;
@@ -235,7 +232,6 @@
             checkTimeStatus();
         };
 
-        // Hàm kiểm tra trạng thái thời gian xem người dùng có đang bị khóa hay không
         function checkTimeStatus() {
             const unlockTimestamp = localStorage.getItem('apple_unlock_time');
             const savedAccountIndex = localStorage.getItem('apple_saved_index');
@@ -243,17 +239,14 @@
             if (unlockTimestamp) {
                 const timeElapsed = Date.now() - parseInt(unlockTimestamp);
 
-                // TRƯỜNG HỢP 1: Đang trong 90 giây xem bài (Người dùng F5 lại trang)
                 if (timeElapsed < VIEW_TIME_LIMIT) {
                     currentAccount = DATA_ACCOUNTS[parseInt(savedAccountIndex)];
                     showResultView();
                     start90sCountdown(VIEW_TIME_LIMIT - timeElapsed);
                 } 
-                // TRƯỜNG HỢP 2: Đang trong thời gian bị khóa 3 tiếng
                 else if (timeElapsed < (VIEW_TIME_LIMIT + BLOCK_TIME_LIMIT)) {
                     showBlockScreen( (VIEW_TIME_LIMIT + BLOCK_TIME_LIMIT) - timeElapsed );
                 } 
-                // TRƯỜNG HỢP 3: Đã hết thời gian phạt 3 tiếng -> Giải phóng cho chơi tiếp
                 else {
                     localStorage.removeItem('apple_unlock_time');
                     localStorage.removeItem('apple_saved_index');
@@ -264,28 +257,22 @@
             }
         }
 
-        // Khởi tạo tài khoản random ban đầu
         function initRandomAccount() {
             if (DATA_ACCOUNTS.length > 0) {
                 const randomIndex = Math.floor(Math.random() * DATA_ACCOUNTS.length);
                 currentAccount = DATA_ACCOUNTS[randomIndex];
                 document.getElementById('display-apple-id').value = currentAccount.appleId;
-                // Lưu tạm index để nếu có unlock rồi F5 vẫn giữ nguyên nick này
                 localStorage.setItem('apple_saved_index', randomIndex);
             }
         }
 
-        // Khi người dùng bấm nút xác nhận mật khẩu
         function checkUnlockPassword() {
             const userInput = document.getElementById('unlock-password').value;
             const errorElement = document.getElementById('error-msg');
 
             if (userInput === currentAccount.unlockPassword) {
                 errorElement.style.display = 'none';
-                
-                // Đánh dấu thời gian bắt đầu unlock vào máy người dùng
                 localStorage.setItem('apple_unlock_time', Date.now().toString());
-                
                 showResultView();
                 start90sCountdown(VIEW_TIME_LIMIT);
             } else {
@@ -293,7 +280,6 @@
             }
         }
 
-        // Hiển thị khung chứa Email / MK kết quả
         function showResultView() {
             document.getElementById('unlock-section').style.display = 'none';
             document.getElementById('result-email').value = currentAccount.resultEmail;
@@ -301,10 +287,8 @@
             document.getElementById('result-section').style.display = 'block';
         }
 
-        // Chạy đồng hồ đếm ngược 90 giây công khai trên màn hình
         function start90sCountdown(msRemaining) {
             const timerDisplay = document.getElementById('countdown-num');
-            
             if(countdownInterval) clearInterval(countdownInterval);
 
             countdownInterval = setInterval(() => {
@@ -314,13 +298,11 @@
 
                 if (msRemaining <= 0) {
                     clearInterval(countdownInterval);
-                    // Hết 90 giây chuyển ngay sang màn hình khóa 3 tiếng
                     showBlockScreen(BLOCK_TIME_LIMIT);
                 }
             }, 1000);
         }
 
-        // Kích hoạt màn hình khóa và đếm ngược 3 tiếng
         function showBlockScreen(msRemaining) {
             document.getElementById('main-app').style.display = 'none';
             document.getElementById('block-screen').style.display = 'flex';
@@ -334,17 +316,14 @@
 
                 if (msRemaining <= 0) {
                     clearInterval(countdownInterval);
-                    // Hết hạn phạt -> Xóa dữ liệu cũ, tải lại trang để họ lấy tiếp
                     localStorage.removeItem('apple_unlock_time');
                     localStorage.removeItem('apple_saved_index');
                     window.location.reload();
                 } else {
-                    // Định dạng hiển thị Giờ:Phút:Giây
                     let hours = Math.floor(msRemaining / (1000 * 60 * 60));
                     let minutes = Math.floor((msRemaining % (1000 * 60 * 60)) / (1000 * 60));
                     let seconds = Math.floor((msRemaining % (1000 * 60)) / 1000);
 
-                    // Thêm số 0 phía trước nếu số < 10
                     hours = hours < 10 ? "0" + hours : hours;
                     minutes = minutes < 10 ? "0" + minutes : minutes;
                     seconds = seconds < 10 ? "0" + seconds : seconds;
@@ -354,7 +333,6 @@
             }, 1000);
         }
 
-        // Hàm copy văn bản ẩn
         function copyText(elementId) {
             const inputElement = document.getElementById(elementId);
             navigator.clipboard.writeText(inputElement.value).then(() => {
