@@ -152,8 +152,8 @@
 <body>
 
     <div id="block-screen" style="display: none;">
-        <h1>Giới Hạn Truy Cập!</h1>
-        <p>Bạn đã hết lượt lấy tài khoản miễn phí công khai.</p>
+        <h1>VUI LÒNG THỬ LẠI SAU 3 GIỜ!</h1>
+        <p>Bạn đã hết lượt lấy tài.</p>
         <p>Vui lòng quay lại sau:</p>
         <div id="block-timer">00:00:00</div>
     </div>
@@ -163,27 +163,27 @@
         
         <div id="unlock-section">
             <div class="input-group">
-                <label>Apple ID được chỉ định ngẫu nhiên:</label>
+                <label>Nhập mã khóa của tài khoản:</label>
                 <input type="text" id="display-apple-id" readonly style="font-weight: bold; background-color: #e2e8f0;">
             </div>
 
             <div class="input-group">
-                <label for="unlock-password">Nhập mật khẩu của Apple ID này để lấy thông tin:</label>
+                <label for="unlock-password">Nhập mã khóa của Apple ID này để lấy thông tin:</label>
                 <div class="field-box">
-                    <input type="password" id="unlock-password" placeholder="Nhập mật khẩu mở khóa...">
+                    <input type="password" id="unlock-password" placeholder="Nhập mã khóa...">
                     <button onclick="checkUnlockPassword()">Xác nhận</button>
                 </div>
-                <p id="error-msg">Mật khẩu xác thực không chính xác. Vui lòng thử lại!</p>
+                <p id="error-msg">Mã xác thực không chính xác. Vui lòng thử lại!</p>
             </div>
         </div>
 
         <div id="result-section">
             <div class="timer-banner">
-                Thời gian sao chép còn lại: <span id="countdown-num">90</span> giây
+                Bạn còn lại: <span id="countdown-num">90</span> giây
             </div>
 
             <div class="input-group">
-                <label>Email nhận được (Hiển thị ẩn):</label>
+                <label>Email:</label>
                 <div class="field-box">
                     <input type="password" id="result-email" readonly>
                     <button class="btn-success" onclick="copyText('result-email')">Sao chép</button>
@@ -191,7 +191,7 @@
             </div>
 
             <div class="input-group">
-                <label>Mật khẩu nhận được (Hiển thị ẩn):</label>
+                <label>Mật khẩu:</label>
                 <div class="field-box">
                     <input type="password" id="result-password" readonly>
                     <button class="btn-success" onclick="copyText('result-password')">Sao chép</button>
@@ -200,7 +200,7 @@
         </div>
     </div>
 
-    <div id="toast" class="toast">Đã sao chép vào bộ nhớ tạm!</div>
+    <div id="toast" class="toast">Đã sao chép!</div>
 
     <script>
         // =========================================================================
